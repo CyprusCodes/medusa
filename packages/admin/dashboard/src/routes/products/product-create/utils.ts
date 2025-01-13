@@ -7,13 +7,20 @@ export const normalizeProductFormValues = (
     status: HttpTypes.AdminProductStatus
     regionsCurrencyMap: Record<string, string>
   }
-): HttpTypes.AdminCreateProduct => {
+): HttpTypes.AdminCreateProduct & {
+  additional_data: { product_item_type: string }
+} => {
   const thumbnail = values.media?.find((media) => media.isThumbnail)?.url
   const images = values.media
     ?.filter((media) => !media.isThumbnail)
     .map((media) => ({ url: media.url }))
 
+  const additional_data = {
+    product_item_type: values.productType,
+  }
+
   return {
+    additional_data,
     status: values.status,
     is_giftcard: false,
     tags: values?.tags?.length

@@ -8,6 +8,7 @@ import { ActionMenu } from "../../../../../components/common/action-menu"
 import { SectionRow } from "../../../../../components/common/section"
 import { useDashboardExtension } from "../../../../../extensions"
 import { useDeleteProduct } from "../../../../../hooks/api/products"
+import { startCase } from "lodash"
 
 const productStatusColor = (status: string) => {
   switch (status) {
@@ -25,7 +26,9 @@ const productStatusColor = (status: string) => {
 }
 
 type ProductGeneralSectionProps = {
-  product: HttpTypes.AdminProduct
+  product: HttpTypes.AdminProduct & {
+    product_item_type?: any
+  }
 }
 
 export const ProductGeneralSection = ({
@@ -94,6 +97,10 @@ export const ProductGeneralSection = ({
         </div>
       </div>
 
+      <SectionRow
+        title={t("fields.type")}
+        value={startCase(product.product_item_type?.name || "")}
+      />
       <SectionRow title={t("fields.description")} value={product.description} />
       <SectionRow title={t("fields.subtitle")} value={product.subtitle} />
       <SectionRow title={t("fields.handle")} value={`/${product.handle}`} />

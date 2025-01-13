@@ -305,11 +305,26 @@ export const useUpdateProduct = (
   options?: UseMutationOptions<
     HttpTypes.AdminProductResponse,
     FetchError,
-    HttpTypes.AdminUpdateProduct
+    HttpTypes.AdminUpdateProduct & {
+      product_item_type?: string
+      product_item_type_id?: string
+    }
   >
 ) => {
   return useMutation({
-    mutationFn: (payload) => sdk.admin.product.update(id, payload),
+    mutationFn: (val) => {
+      const { product_item_type, product_item_type_id, ...rest } = val
+
+      const payload = {
+        ...rest,
+        additional_data: {
+          product_item_type,
+          product_item_type_id,
+        },
+      }
+      console.log("🚀 ~ payload:", payload)
+      return sdk.admin.product.update(id, payload)
+    },
     onSuccess: async (data, variables, context) => {
       await queryClient.invalidateQueries({
         queryKey: productsQueryKeys.lists(),

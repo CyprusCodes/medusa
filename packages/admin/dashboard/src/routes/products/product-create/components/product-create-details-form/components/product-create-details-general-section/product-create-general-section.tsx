@@ -1,4 +1,4 @@
-import { Input, Textarea } from "@medusajs/ui"
+import { Input, Select, Textarea } from "@medusajs/ui"
 import { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -14,6 +14,21 @@ export const ProductCreateGeneralSection = ({
   form,
 }: ProductCreateGeneralSectionProps) => {
   const { t } = useTranslation()
+
+  const _select_options = [
+    {
+      label: "Top up",
+      value: "top_up",
+    },
+    {
+      label: "Digital Product",
+      value: "digital_product",
+    },
+    {
+      label: "Physical Product",
+      value: "physical_product",
+    },
+  ]
 
   return (
     <div id="general" className="flex flex-col gap-y-6">
@@ -70,6 +85,32 @@ export const ProductCreateGeneralSection = ({
           />
         </div>
       </div>
+      <Form.Field
+        control={form.control}
+        name="productType"
+        render={({ field: { ref, onChange, ...field } }) => {
+          return (
+            <Form.Item>
+              <Form.Label>{t("fields.type")}</Form.Label>
+              <Form.Control>
+                <Select {...field} onValueChange={onChange}>
+                  <Select.Trigger ref={ref}>
+                    <Select.Value />
+                  </Select.Trigger>
+                  <Select.Content>
+                    {_select_options.map((item) => (
+                      <Select.Item key={item.value} value={item.value}>
+                        {item.label}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select>
+              </Form.Control>
+              <Form.ErrorMessage />
+            </Form.Item>
+          )
+        }}
+      />
       <Form.Field
         control={form.control}
         name="description"

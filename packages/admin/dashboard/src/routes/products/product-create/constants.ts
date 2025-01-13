@@ -61,6 +61,7 @@ export const ProductCreateSchema = z
     subtitle: z.string().optional(),
     handle: z.string().optional(),
     description: z.string().optional(),
+    productType: z.enum(["top_up", "digital_product", "physical_product"]),
     discountable: z.boolean(),
     type_id: z.string().optional(),
     collection_id: z.string().optional(),

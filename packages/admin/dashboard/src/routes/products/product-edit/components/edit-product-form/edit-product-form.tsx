@@ -16,8 +16,15 @@ import {
   useDashboardExtension,
 } from "../../../../../extensions"
 
+interface ExtendedAdminUpdateProduct extends HttpTypes.AdminUpdateProduct {
+  product_item_type?: string
+  product_item_type_id?: string
+}
+
 type EditProductFormProps = {
-  product: HttpTypes.AdminProduct
+  product: HttpTypes.AdminProduct & {
+    product_item_type?: any
+  }
 }
 
 const EditProductSchema = zod.object({
@@ -28,6 +35,7 @@ const EditProductSchema = zod.object({
   material: zod.string().optional(),
   description: zod.string().optional(),
   discountable: zod.boolean(),
+  productType: zod.enum(["top_up", "digital_product", "physical_product"]),
 })
 
 export const EditProductForm = ({ product }: EditProductFormProps) => {
@@ -40,6 +48,7 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
 
   const form = useExtendableForm({
     defaultValues: {
+      productType: product.product_item_type?.name,
       status: product.status,
       title: product.title,
       material: product.material || "",
@@ -56,7 +65,8 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
   const { mutateAsync, isPending } = useUpdateProduct(product.id)
 
   const handleSubmit = form.handleSubmit(async (data) => {
-    const { title, discountable, handle, status, ...optional } = data
+    const { title, discountable, handle, status, productType, ...optional } =
+      data
 
     const nullableData = transformNullableFormData(optional)
 
@@ -65,9 +75,11 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
         title,
         discountable,
         handle,
+        product_item_type: productType,
+        product_item_type_id: product.product_item_type?.id,
         status: status as HttpTypes.AdminProductStatus,
         ...nullableData,
-      },
+      } as ExtendedAdminUpdateProduct,
       {
         onSuccess: ({ product }) => {
           toast.success(
@@ -82,6 +94,21 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
     )
   })
 
+  const _select_options = [
+    {
+      label: "Top up",
+      value: "top_up",
+    },
+    {
+      label: "Digital Product",
+      value: "digital_product",
+    },
+    {
+      label: "Physical Product",
+      value: "physical_product",
+    },
+  ]
+
   return (
     <RouteDrawer.Form form={form}>
       <KeyboundForm
@@ -91,6 +118,32 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
         <RouteDrawer.Body className="flex flex-1 flex-col gap-y-8 overflow-y-auto">
           <div className="flex flex-col gap-y-8">
             <div className="flex flex-col gap-y-4">
+              <Form.Field
+                control={form.control}
+                name="productType"
+                render={({ field: { ref, onChange, ...field } }) => {
+                  return (
+                    <Form.Item>
+                      <Form.Label>{t("fields.type")}</Form.Label>
+                      <Form.Control>
+                        <Select {...field} onValueChange={onChange}>
+                          <Select.Trigger ref={ref}>
+                            <Select.Value />
+                          </Select.Trigger>
+                          <Select.Content>
+                            {_select_options.map((item) => (
+                              <Select.Item key={item.value} value={item.value}>
+                                {item.label}
+                              </Select.Item>
+                            ))}
+                          </Select.Content>
+                        </Select>
+                      </Form.Control>
+                      <Form.ErrorMessage />
+                    </Form.Item>
+                  )
+                }}
+              />
               <Form.Field
                 control={form.control}
                 name="status"
@@ -183,6 +236,7 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
                   )
                 }}
               />
+
               <Form.Field
                 control={form.control}
                 name="material"

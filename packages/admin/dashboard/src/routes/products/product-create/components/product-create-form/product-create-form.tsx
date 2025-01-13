@@ -63,6 +63,7 @@ export const ProductCreateForm = ({
 
   const form = useExtendableForm({
     defaultValues: {
+      productType: "digital_product",
       ...PRODUCT_CREATE_FORM_DEFAULTS,
       sales_channels: defaultChannel
         ? [{ id: defaultChannel.id, name: defaultChannel.name }]
@@ -79,10 +80,14 @@ export const ProductCreateForm = ({
       return {}
     }
 
-    return regions.reduce((acc, reg) => {
-      acc[reg.id] = reg.currency_code
-      return acc
-    }, {} as Record<string, string>)
+    // prettier-ignore
+    return regions.reduce(
+      (acc, reg) => {
+        acc[reg.id] = reg.currency_code
+        return acc
+      },
+      {} as Record<string, string>
+    )
   }, [regions])
 
   /**
@@ -108,7 +113,10 @@ export const ProductCreateForm = ({
     }
 
     const media = values.media || []
-    const payload = { ...values, media: undefined }
+    const payload = {
+      ...values,
+      media: undefined,
+    }
 
     let uploadedMedia: (HttpTypes.AdminFile & { isThumbnail: boolean })[] = []
     try {
